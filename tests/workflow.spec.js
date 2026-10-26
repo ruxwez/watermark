@@ -53,13 +53,14 @@ test('logo survives reload, mobile layout, and invalid files are reported',async
 test('drag to place the mark and keyboard navigation',async({page})=>{
   await page.goto('/');
   await page.getByLabel('Seleccionar imágenes').setInputFiles([fixture('uno.svg'),fixture('dos.svg')]);
-  await expect(page.getByText('1 / 2')).toBeVisible();
+  const counter=page.getByRole('heading',{level:2}).first();
+  await expect(counter).toContainText('01/02');
   const box=await page.locator('.preview-stage').boundingBox();
   await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
   await page.mouse.move(box.x+box.width/2+5,box.y+box.height/2+5,{steps:3});await page.mouse.up();
   await expect(page.getByLabel('Horizontal %')).not.toHaveValue('90');
   await expect(page.getByLabel('Vertical %')).not.toHaveValue('90');
   await page.keyboard.press('ArrowRight');
-  await expect(page.getByText('2 / 2')).toBeVisible();
-  await expect(page.getByText('dos.svg',{exact:true})).toBeVisible();
+  await expect(counter).toContainText('02/02');
+  await expect(counter).toContainText('dos.svg');
 });
