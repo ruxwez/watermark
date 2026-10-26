@@ -8,7 +8,7 @@ test('bulk export, repeated text, IndexedDB profiles and original dimensions', a
   await page.getByLabel('Seleccionar imágenes').setInputFiles([fixture('foto.svg'),fixture('foto.svg')]);
   await expect(page.getByText('2 imágenes listas')).toBeVisible();
   await page.getByLabel('Tu firma',{exact:true}).fill('Mi estudio');
-  await page.getByLabel('Distribución').selectOption('repeat');
+  await page.getByRole('radiogroup',{name:'Distribución'}).getByText('Mosaico').click();
   await page.getByRole('slider',{name:'Opacidad'}).focus();
   await page.keyboard.press('End');
   await page.getByRole('button',{name:'Guardar',exact:true}).click();
@@ -33,7 +33,7 @@ test('bulk export, repeated text, IndexedDB profiles and original dimensions', a
   }
   await page.waitForTimeout(600);await page.reload();
   await expect(page.getByLabel('Tu firma',{exact:true})).toHaveValue('Mi estudio');
-  await expect(page.getByLabel('Distribución')).toHaveValue('repeat');
+  await expect(page.getByRole('radio',{name:'Mosaico'})).toBeChecked();
   await expect(page.getByRole('button',{name:'Estudio',exact:true})).toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -47,6 +47,20 @@ test('logo survives reload, mobile layout, and invalid files are reported',async
   await page.getByLabel('Seleccionar imágenes').setInputFiles([fixture('foto.svg'),{name:'bad.txt',mimeType:'text/plain',buffer:Buffer.from('bad')}]);
   await expect(page.getByRole('alert')).toContainText('1 archivo(s)');
   await expect(page.getByText('1 imagen lista',{exact:true})).toBeVisible();
-  const dl=page.waitForEvent('download');await page.getByRole('button',{name:'Descargar ZIP'}).click();await dl;
+  const dl=page.waitForEvent('download');await page.getByRole('button',{name:'Descargar imagen'}).click();expect((await dl).suggestedFilename()).toBe('foto-watermark.png');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+test('drag to place the mark and keyboard navigation',async({page})=>{
+  await page.goto('/');
+  await page.getByLabel('Seleccionar imágenes').setInputFiles([fixture('uno.svg'),fixture('dos.svg')]);
+  const counter=page.getByRole('heading',{level:2}).first();
+  await expect(counter).toContainText('01/02');
+  const box=await page.locator('.preview-stage').boundingBox();
+  await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+  await page.mouse.move(box.x+box.width/2+5,box.y+box.height/2+5,{steps:3});await page.mouse.up();
+  await expect(page.getByLabel('Horizontal %')).not.toHaveValue('90');
+  await expect(page.getByLabel('Vertical %')).not.toHaveValue('90');
+  await page.keyboard.press('ArrowRight');
+  await expect(counter).toContainText('02/02');
+  await expect(counter).toContainText('dos.svg');
 });

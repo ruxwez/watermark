@@ -7,8 +7,13 @@ export function loadImage(src) {
     image.src = src;
   });
 }
+let logoCache = { src: '', image: null };
+async function loadLogo(src) {
+  if (logoCache.src !== src) logoCache = { src, image: await loadImage(src) };
+  return logoCache.image;
+}
 export async function render(source, config, maxSize) {
-  const img = await loadImage(source);
+  const img = typeof source === 'string' ? await loadImage(source) : source;
   const scale = maxSize ? Math.min(1, maxSize / Math.max(img.width, img.height)) : 1;
   const canvas = document.createElement('canvas');
   canvas.width = Math.max(1, Math.round(img.width * scale)); canvas.height = Math.max(1, Math.round(img.height * scale));
@@ -21,7 +26,7 @@ export async function render(source, config, maxSize) {
   let logo, w, h;
   if (config.type === 'image') {
     if (!config.logo) return canvas;
-    logo = await loadImage(config.logo); w = width * 2; h = w * logo.height / logo.width;
+    logo = await loadLogo(config.logo); w = width * 2; h = w * logo.height / logo.width;
     const fit = Math.min(1, unit * .8 / h); w *= fit; h *= fit;
   } else {
     if (!config.text.trim()) return canvas;
@@ -48,6 +53,7 @@ export async function render(source, config, maxSize) {
     const padX = Math.min(canvas.width / 2, bw / 2 + unit * .025);
     const padY = Math.min(canvas.height / 2, bh / 2 + unit * .025);
     stamp(padX + (canvas.width - 2 * padX) * config.x / 100, padY + (canvas.height - 2 * padY) * config.y / 100);
+    canvas.layout = { padX, padY };
   }
   return canvas;
 }

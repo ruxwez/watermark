@@ -37,7 +37,7 @@ pnpm cf:dev
 pnpm deploy
 ```
 
-Este comando compila y ejecuta `wrangler deploy`. Puedes cambiar `name` en `wrangler.jsonc` para elegir otro nombre de aplicación. El dominio final lo muestra Wrangler al terminar. En la configuración de compilación de Cloudflare puedes usar `pnpm install --frozen-lockfile` como instalación y `pnpm deploy` como comando de despliegue. No se incluyen workflows de CI.
+Este comando compila y ejecuta `wrangler deploy`. Puedes cambiar `name` en `wrangler.jsonc` para elegir otro nombre de aplicación. El dominio final lo muestra Wrangler al terminar. En la configuración de compilación de Cloudflare puedes usar `pnpm install --frozen-lockfile` como instalación y `pnpm deploy` como comando de despliegue. El bloque `previews` de `wrangler.jsonc` es necesario para que Cloudflare genere las previsualizaciones de cada pull request con `wrangler preview`. No se incluyen workflows de CI.
 
 Los perfiles de IndexedDB pertenecen a cada origen: las configuraciones de localhost no se transfieren al dominio de Cloudflare.
 
