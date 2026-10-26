@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview --host 0.0.0.0",
     "check": "svelte-check",
-    "test": "playwright test"
+    "test": "playwright test",
+    "cf:dev": "pnpm build && wrangler dev",
+    "deploy": "pnpm build && wrangler deploy"
   },
   "repository": {
     "type": "git",
@@ -35,6 +37,8 @@
     "svelte-check": "^4.7.7",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
-    "vite": "^8.3.5"
-  }
+    "vite": "^8.3.5",
+    "wrangler": "^4.152.0"
+  },
+  "packageManager": "pnpm@11.25.0"
 }
